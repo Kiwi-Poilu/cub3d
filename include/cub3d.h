@@ -76,9 +76,9 @@ typedef struct  s_map
 
 typedef struct  s_cub
 {
-  t_mlx         mlx;
-  t_map         map;
-  t_player      player;
+	char **map;
+	t_mlx         mlx;
+	t_player      player;
 }               t_cub;
 
 char	*ft_strjoin2(char *s1, char *s2);
