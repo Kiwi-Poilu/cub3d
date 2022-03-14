@@ -10,6 +10,16 @@ int	ft_strcmp(const char *s1, const char *s2)
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
+int	ft_strncmp(const char *s1, const char *s2, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (s1[i] && s2[i] && s1[i] == s2[i] && i < n -1)
+		i++;
+	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
+}
+
 int   ft_check_file_name(char *str)
 {
   int i;
@@ -171,6 +181,8 @@ int	check_chars(char **map, int *x, int *y)
 		{
 			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
 			{
+				printf("i=%d\n", i);
+				printf("j=%d\n", j);
 				p_count++;
 				*x = j;
 				*y = i;
@@ -182,7 +194,7 @@ int	check_chars(char **map, int *x, int *y)
 		i++;
 	}
 	if (p_count != 1)
-		return (1);
+		return (printf("Error\nNo player on the map\n"));
 	return (0);
 }
 
@@ -197,8 +209,35 @@ int	ft_check_map(t_cub *cub)
 		return (1);
 	if (check_open_map(cub->map + 6) != 0)
 		return (printf("Error\nMap is not closed\n"));
-	cub->player_x = x;
-	cub->player_y = y;
+	printf("P === %c\n", cub->map[y + 6][x]);
+	if (cub->map[y + 6][x] == 'N')
+	{
+		cub->player.dir_x = 0;
+		cub->player.dir_y = -1;
+		cub->player.plane_x = 0.66;
+		cub->player.plane_y = 0;
+	}
+	if (cub->map[y + 6][x] == 'S')
+	{
+		cub->player.dir_x = 0;
+		cub->player.dir_y = 1;
+		cub->player.plane_x = -0.66;
+		cub->player.plane_y = 0;
+	}
+	if (cub->map[y + 6][x] == 'W')
+	{
+		cub->player.dir_x = -1;
+		cub->player.dir_y = 0;
+		cub->player.plane_x = 0;
+		cub->player.plane_y = -0.66;
+	}
+	if (cub->map[y + 6][x] == 'E')
+	{
+		cub->player.dir_x = 1;
+		cub->player.dir_y = 0;
+		cub->player.plane_x = 0;
+		cub->player.plane_y = 0.66;
+	}
 	return (0);		
 }
 
@@ -246,12 +285,100 @@ char	**store_map(int ac, char **av)
 	return (ft_store_map(fd));
 }
 
+int	ft_skip_spaces(char *str, int i)
+{
+	while (str[i] == ' ')
+		i++;
+	return (i);
+}
+
+int	check_spaces(char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i] != '\0')
+	{
+		if (str[i] == ' ')
+			return (1);
+		i++;
+	}
+	return (0);
+}
+
+int	free_textures(t_cub *cub)
+{
+	if (cub->path_to_north != NULL)
+		free(cub->path_to_north);
+	if (cub->path_to_south != NULL)
+		free(cub->path_to_south);
+	if (cub->path_to_west != NULL)
+		free(cub->path_to_west);
+	if (cub->path_to_east != NULL)
+		free(cub->path_to_east);
+	return (1);
+}
+
+int	get_texture(t_cub *cub, char *str)
+{
+	int i;
+
+	i = 0;
+	while (str[i] == ' ')
+		i++;
+	if (ft_strncmp(str, "NO", 2) == 0)
+	{
+		i += ft_skip_spaces(str + i, 2);
+		cub->path_to_north = ft_strdup(str + i);
+	}
+	else if (ft_strncmp(str, "SO", 2) == 0)
+	{
+		i += ft_skip_spaces(str + i, 2);
+		cub->path_to_south = ft_strdup(str + i);
+	}
+	else if (ft_strncmp(str, "WE", 2) == 0)
+	{
+		i += ft_skip_spaces(str + i, 2);
+		cub->path_to_west = ft_strdup(str + i);
+	}
+	else if (ft_strncmp(str, "EA", 2) == 0)
+	{
+		i += ft_skip_spaces(str + i, 2);
+		cub->path_to_east = ft_strdup(str + i);
+	}
+	else
+		return (1);
+	if (check_spaces(str + i))
+		return (1);
+	return (0);
+}
+
+int	fill_txt(t_cub *cub)
+{
+	int i;
+	
+	i = 0;
+	while (cub->map[i] != NULL)
+	{
+		if (get_texture(cub, cub->map[i]) != 0)
+			break;
+		i++;
+	}
+	if (cub->path_to_north == NULL || cub->path_to_south == NULL || cub->path_to_west == NULL
+			|| cub->path_to_east == NULL)
+			return (printf("Error\nProblem with some of the texture file\n"));
+	return (0);
+}
+
 int	fill_textures(t_cub *cub)
 {
 	cub->path_to_north = NULL;
 	cub->path_to_south = NULL;
 	cub->path_to_west = NULL;
-	cub->path_to_west = NULL;	
+	cub->path_to_east = NULL;
+	if (fill_txt(cub) != 0)
+		return (free_textures(cub));
+	return (0);
 }
 
 int	main(int ac, char **av)
@@ -261,9 +388,16 @@ int	main(int ac, char **av)
 	cub.map = store_map(ac, av);
 	if (cub.map == NULL)
 		return (0);
-	fill_textures(cub.map);
+	if (fill_textures(&cub) != 0)
+		return (ft_free_map(cub.map));
 	display_map(cub.map);
 	if (ft_check_map(&cub) != 0)
 		return (ft_free_map(cub.map));
+	printf("dir_x=%f\n", cub.player.dir_x);
+	printf("dir_y=%f\n", cub.player.dir_y);
+	printf("plane_x=%f\n", cub.player.plane_x);
+	printf("plane_y=%f\n", cub.player.plane_y);
+	printf("North=%s\n", cub.path_to_north);
+	free_textures(&cub);
 	ft_free_map(cub.map);
 }

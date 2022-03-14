@@ -67,24 +67,17 @@ typedef struct  s_mlx
   int           y;
 }               t_mlx;
 
-typedef struct  s_map
-{
-  char  **tab;
-  int   height;
-  int   width;
-}               t_map;
-
 typedef struct  s_cub
 {
 	char **map;
-  int player_x;
-  int player_y;
-  char *path_to_north;
-  char *path_to_south;
-  char *path_to_west;
-  char *path_to_east;
-  int   floor_color;
-  int   ceiling_color;
+	int player_x;
+	int player_y;
+	char *path_to_north;
+	char *path_to_south;
+	char *path_to_west;
+	char *path_to_east;
+	int   floor_color;
+	int   ceiling_color;
 	t_mlx         mlx;
 	t_player      player;
 }               t_cub;
