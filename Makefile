@@ -19,14 +19,12 @@ all: $(NAME)
 
 $(NAME): $(OBJS) $(INCS)
 	make -C libft
-	make -C mlx
-	$(CC) $(FLAGS) -I include -o $(NAME) $(OBJS) libft/libft.a -Lmlx -lmlx -lX11 -lbsd -lm -lXext
 
+	$(CC) $(FLAGS) -I include -o $(NAME) $(OBJS) libft/libft.a
 %.o: %.c $(INCS)
-	$(CC) $(FLAGS) -I include -Imlx -c $< -o $@
+	$(CC) $(FLAGS) -I include -c $< -o $@
 
 clean:
-	make clean -C mlx
 	make fclean -C libft
 	rm -f ${OBJS}
 

@@ -193,12 +193,12 @@ int	ft_check_map(t_cub *cub)
 
 	x = -1;
 	y = -1;
-	if (check_chars(cub->map, &x, &y) != 0)
+	if (check_chars(cub->map + 6, &x, &y) != 0)
 		return (1);
-	if (check_open_map(cub->map) != 0)
+	if (check_open_map(cub->map + 6) != 0)
 		return (printf("Error\nMap is not closed\n"));
-	cub->player.map_x = x;
-	cub->player.map_y = y;
+	cub->player_x = x;
+	cub->player_y = y;
 	return (0);		
 }
 
@@ -246,6 +246,14 @@ char	**store_map(int ac, char **av)
 	return (ft_store_map(fd));
 }
 
+int	fill_textures(t_cub *cub)
+{
+	cub->path_to_north = NULL;
+	cub->path_to_south = NULL;
+	cub->path_to_west = NULL;
+	cub->path_to_west = NULL;	
+}
+
 int	main(int ac, char **av)
 {
 	t_cub cub;
@@ -253,6 +261,7 @@ int	main(int ac, char **av)
 	cub.map = store_map(ac, av);
 	if (cub.map == NULL)
 		return (0);
+	fill_textures(cub.map);
 	display_map(cub.map);
 	if (ft_check_map(&cub) != 0)
 		return (ft_free_map(cub.map));
