@@ -87,38 +87,6 @@ char  **ft_store_map(int fd)
     return (map);
 }
 
-int	flood_fill(char **map, int x, int y)
-{
-	printf("map[y][x] = %c\n", map[y][x]);
-	printf("y=%d x=%d\n", y , x);
-	if (map[y] == NULL)
-	{
-		printf("map[y]==NULL\n");
-		return (1);
-	}
-	if (map[y][x] == ' ')
-	{
-		printf("map[y][x] == ' '");
-		return (1);
-	}
-	if (map[y][x] == '1')
-		return (0);
-	if (x == 0 || y == 0 || map[y][x] == '\n')
-	{
-		printf("x == %d || y == %d || ft_strlen(map[y] = %d\n", x, y, ft_strlen(map[y]));
-		return (1);
-	}
-	if (flood_fill(map, x - 1, y) == 1)
-		return (1);
-	if (flood_fill(map, x + 1, y) == 1)
-		return (1);
-	if (flood_fill(map, x, y - 1) == 1)
-		return (1);
-	if (flood_fill(map, x, y + 1) == 1)
-		return (1);
-	return (0);
-}
-
 int	check_around(char **map, int i, int j)
 {
 	if (i == 0 || j == 0)
@@ -347,9 +315,29 @@ int	get_texture(t_cub *cub, char *str)
 		cub->path_to_east = ft_strdup(str + i);
 	}
 	else
-		return (1);
+		return (0);
 	if (check_spaces(str + i))
 		return (1);
+	return (0);
+}
+
+int	get_color(char *str, char **C, char **F)
+{
+	int i;
+
+	i = 0;
+	while (str[i] == ' ')
+		i++;
+	if (str[i] == 'C')
+	{
+		i += ft_skip_spaces(str + i, 1);
+		*C = ft_strdup(str + i);
+	}
+	else if (str[i] == 'F')
+	{
+		i += ft_skip_spaces(str + i, 1);
+		*F = ft_strdup(str + i);
+	}
 	return (0);
 }
 
@@ -370,6 +358,78 @@ int	fill_txt(t_cub *cub)
 	return (0);
 }
 
+int		ft_is_digit(char c)
+{
+	if (c < '0' || c > '9')
+		return (1);
+	return (0);
+}
+unsigned int	get_hex(char *color)
+{
+	unsigned int rgb;
+	unsigned int r;
+	unsigned int g;
+	unsigned int b;
+
+	int i;
+	i = 0;
+	r = 0;
+	g = 0;
+	b = 0;
+	while (ft_is_digit(color[i]))
+	{
+		if (r != 0)
+			r *= 10;
+		r += color[i++] + '0';
+		i++;
+	}
+	if (color[i++] != ',' || r >= 255)
+		return (1);
+	while (ft_is_digit(color[i]))
+	{
+		if (g != 0)
+			b *= 10;
+		b += color[i++] + '0';
+	}
+	if (color[i++] != ',' || r >= 255)
+		return (0);
+	while (ft_is_digit(color[i]))
+	{
+		if (b != 0)
+			b *= 10;
+		b += color[i++] + '0';
+
+	}
+	rgb = 65536 * r + 256 * g + b;
+	return (rgb);
+}
+
+int	fill_colors(t_cub *cub)
+{
+	int i;
+	char *F;
+	char *C;
+
+	F = NULL;
+	C = NULL;
+	i = 0;
+	while (cub->map[i] != NULL)
+	{
+		if (get_color(cub->map[i], &F, &C) != 0)
+			break;
+		i++;
+	}
+	if (F == NULL || C == NULL)
+		return (printf("Error\nProblen with some with floor or ceiling color\n"));
+	cub->F = get_hex(F);
+	cub->C = get_hex(C);
+	if (C == 0 || F == 0)
+		printf("Problem\n");
+	free(F);
+	free(C);
+	return (0);
+}
+
 int	fill_textures(t_cub *cub)
 {
 	cub->path_to_north = NULL;
@@ -378,6 +438,7 @@ int	fill_textures(t_cub *cub)
 	cub->path_to_east = NULL;
 	if (fill_txt(cub) != 0)
 		return (free_textures(cub));
+	fill_colors(cub);
 	return (0);
 }
 
@@ -390,14 +451,8 @@ int	main(int ac, char **av)
 		return (0);
 	if (fill_textures(&cub) != 0)
 		return (ft_free_map(cub.map));
-	display_map(cub.map);
 	if (ft_check_map(&cub) != 0)
 		return (ft_free_map(cub.map));
-	printf("dir_x=%f\n", cub.player.dir_x);
-	printf("dir_y=%f\n", cub.player.dir_y);
-	printf("plane_x=%f\n", cub.player.plane_x);
-	printf("plane_y=%f\n", cub.player.plane_y);
-	printf("North=%s\n", cub.path_to_north);
 	free_textures(&cub);
 	ft_free_map(cub.map);
 }
