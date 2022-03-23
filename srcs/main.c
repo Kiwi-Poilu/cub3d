@@ -149,8 +149,6 @@ int	check_chars(char **map, int *x, int *y)
 		{
 			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
 			{
-				printf("i=%d\n", i);
-				printf("j=%d\n", j);
 				p_count++;
 				*x = j;
 				*y = i;
@@ -177,7 +175,6 @@ int	ft_check_map(t_cub *cub)
 		return (1);
 	if (check_open_map(cub->map + 6) != 0)
 		return (printf("Error\nMap is not closed\n"));
-	printf("P === %c\n", cub->map[y + 6][x]);
 	if (cub->map[y + 6][x] == 'N')
 	{
 		cub->player.dir_x = 0;
@@ -360,7 +357,7 @@ int	fill_txt(t_cub *cub)
 
 int		ft_is_digit(char c)
 {
-	if (c < '0' || c > '9')
+	if (c >= '0' && c <= '9')
 		return (1);
 	return (0);
 }
@@ -380,30 +377,36 @@ unsigned int	get_hex(char *color)
 	{
 		if (r != 0)
 			r *= 10;
-		r += color[i++] + '0';
-		i++;
+		r += color[i++] - '0';
 	}
 	if (color[i++] != ',' || r >= 255)
-		return (1);
+		return (printf("Salut1\n"));
 	while (ft_is_digit(color[i]))
 	{
 		if (g != 0)
-			b *= 10;
-		b += color[i++] + '0';
+			g *= 10;
+		g += color[i++] - '0';
 	}
 	if (color[i++] != ',' || r >= 255)
-		return (0);
+		return (printf("Salut2\n"));
 	while (ft_is_digit(color[i]))
 	{
 		if (b != 0)
 			b *= 10;
-		b += color[i++] + '0';
+		b += color[i++] - '0';
 
 	}
 	rgb = 65536 * r + 256 * g + b;
 	return (rgb);
 }
 
+void	free_either(void *F, void *C)
+{
+	if (F != NULL)
+		free(F);
+	if (C != NULL)
+		free(C);
+}
 int	fill_colors(t_cub *cub)
 {
 	int i;
@@ -414,13 +417,13 @@ int	fill_colors(t_cub *cub)
 	C = NULL;
 	i = 0;
 	while (cub->map[i] != NULL)
-	{
-		if (get_color(cub->map[i], &F, &C) != 0)
+		if (get_color(cub->map[i++], &F, &C) != 0)
 			break;
-		i++;
-	}
 	if (F == NULL || C == NULL)
+	{
+		free_either(F, C);
 		return (printf("Error\nProblen with some with floor or ceiling color\n"));
+	}
 	cub->F = get_hex(F);
 	cub->C = get_hex(C);
 	if (C == 0 || F == 0)
@@ -438,7 +441,8 @@ int	fill_textures(t_cub *cub)
 	cub->path_to_east = NULL;
 	if (fill_txt(cub) != 0)
 		return (free_textures(cub));
-	fill_colors(cub);
+	if (fill_colors(cub) != 0)
+		return (free_textures(cub));
 	return (0);
 }
 
@@ -452,7 +456,10 @@ int	main(int ac, char **av)
 	if (fill_textures(&cub) != 0)
 		return (ft_free_map(cub.map));
 	if (ft_check_map(&cub) != 0)
+	{
+		free_textures(&cub);
 		return (ft_free_map(cub.map));
+	}
 	free_textures(&cub);
 	ft_free_map(cub.map);
 }
