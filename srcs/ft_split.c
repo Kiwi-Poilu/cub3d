@@ -6,15 +6,15 @@
 /*   By: sobouatt <sobouatt@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/03/09 00:03:08 by sobouatt          #+#    #+#             */
-/*   Updated: 2022/03/10 13:04:24 by sobouatt         ###   ########.fr       */
+/*   Updated: 2022/03/23 01:20:35 by sobouatt         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "cub3d.h"
 
-int		wlen(char const *s, char c)
+int	wlen(char const *s, char c)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (s[i] != c && s[i])
@@ -22,10 +22,10 @@ int		wlen(char const *s, char c)
 	return (i);
 }
 
-int		wccount(char const *s, char c)
+int	wccount(char const *s, char c)
 {
-	int i;
-	int words;
+	int	i;
+	int	words;
 
 	i = 0;
 	words = 0;
@@ -40,9 +40,9 @@ int		wccount(char const *s, char c)
 
 char	**fill(char const *s, char c, char **str, int words)
 {
-	int i;
-	int j;
-	int len;
+	int	i;
+	int	j;
+	int	len;
 
 	i = -1;
 	while (++i < words)

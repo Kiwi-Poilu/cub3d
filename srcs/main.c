@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sobouatt <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/03/23 01:21:20 by sobouatt          #+#    #+#             */
+/*   Updated: 2022/03/23 01:51:34 by sobouatt         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "cub3d.h"
 
 int	ft_strcmp(const char *s1, const char *s2)
@@ -20,20 +32,19 @@ int	ft_strncmp(const char *s1, const char *s2, size_t n)
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]);
 }
 
-int   ft_check_file_name(char *str)
+int	ft_check_file_name(char *str)
 {
-  int i;
+	int	i;
 
-  i = 0;
-  while (str[i])
-    i++;
-  i -= 4;
-  if (i <= 0)
-    return (1);
-  if (ft_strcmp(str + i, ".cub") == 0)
-    return (0);
-  return (i);
-
+	i = 0;
+	while (str[i])
+		i++;
+	i -= 4;
+	if (i <= 0)
+		return (1);
+	if (ft_strcmp(str + i, ".cub") == 0)
+		return (0);
+	return (i);
 }
 
 char	*ft_strjoin2(char *s1, char *s2)
@@ -62,29 +73,29 @@ char	*ft_strjoin2(char *s1, char *s2)
 	}
 	str[i + j] = '\0';
 	if (s1)
-    	free(s1);
+		free(s1);
 	return (str);
 }
 
-char  **ft_store_map(int fd)
+char	**ft_store_map(int fd)
 {
-    int gnl_rt;
-    char  *tmp_map;
-    char **map;
-    char *line;
-  
-    gnl_rt = 1;
-    tmp_map = NULL;
-    while (gnl_rt)
-    {
-      gnl_rt = get_next_line(fd, &line);
-      tmp_map = ft_strjoin2(tmp_map, line);
-      tmp_map = ft_strjoin2(tmp_map, "\n");
-	  free(line);
-    }
-    map = ft_split(tmp_map, '\n');
+	int		gnl_rt;
+	char	*tmp_map;
+	char	**map;
+	char	*line;
+
+	gnl_rt = 1;
+	tmp_map = NULL;
+	while (gnl_rt)
+	{
+		gnl_rt = get_next_line(fd, &line);
+		tmp_map = ft_strjoin2(tmp_map, line);
+		tmp_map = ft_strjoin2(tmp_map, "\n");
+		free(line);
+	}
+	map = ft_split(tmp_map, '\n');
 	free(tmp_map);
-    return (map);
+	return (map);
 }
 
 int	check_around(char **map, int i, int j)
@@ -97,25 +108,26 @@ int	check_around(char **map, int i, int j)
 		return (1);
 	if (ft_strlen(map[i - 1]) - 1 < j || ft_strlen(map[i + 1]) - 1 < j)
 		return (1);
-	if (map[i + 1][j] == ' ' || map[i - 1][j] == ' '|| map[i][j - 1] == ' ' || map[i][j + 1] == ' ')
+	if (map[i + 1][j] == ' ' || map[i - 1][j] == ' '
+		|| map[i][j - 1] == ' ' || map[i][j + 1] == ' ')
 		return (1);
 	return (0);
 }
 
 int	check_open_map(char **map)
 {
-	int i;
-	int j;
+	int	i;
+	int	j;
 
 	i = 0;
 	j = 0;
-	while(map[i] != NULL)
+	while (map[i] != NULL)
 	{
 		j = 0;
 		while (map[i][j] != '\0')
 		{
 			if (map[i][j] != ' ' && map[i][j] != '1')
-				if (check_around(map, i, j) != 0)	
+				if (check_around(map, i, j) != 0)
 					return (1);
 			j++;
 		}
@@ -126,16 +138,17 @@ int	check_open_map(char **map)
 
 int	is_charset(char c)
 {
-	if (c == '0' || c == '1' || c == ' ' || c == 'N' || c == 'S' || c == 'E' || c == 'W')
+	if (c == '0' || c == '1' || c == ' ' || c == 'N'
+		|| c == 'S' || c == 'E' || c == 'W')
 		return (1);
 	return (0);
 }
 
 int	check_chars(char **map, int *x, int *y)
 {
-	int p_count;
-	int i;
-	int j;
+	int	p_count;
+	int	i;
+	int	j;
 
 	i = 0;
 	j = 0;
@@ -147,14 +160,17 @@ int	check_chars(char **map, int *x, int *y)
 		j = 0;
 		while (map[i][j] != '\0')
 		{
-			if (map[i][j] == 'N' || map[i][j] == 'S' || map[i][j] == 'E' || map[i][j] == 'W')
+			if (map[i][j] == 'N' || map[i][j] == 'S'
+				|| map[i][j] == 'E' || map[i][j] == 'W')
 			{
 				p_count++;
 				*x = j;
 				*y = i;
 			}
 			else if (is_charset(map[i][j]) != 1)
-				return (printf("Error\nInvalid character %c at the position [%d][%d]", map[i][j], i, j));
+				return (printf(
+						"Error\nInvalid character %c at the position [%d][%d]"
+						, map[i][j], i, j));
 			j++;
 		}
 		i++;
@@ -166,8 +182,8 @@ int	check_chars(char **map, int *x, int *y)
 
 int	ft_check_map(t_cub *cub)
 {
-	int x;
-	int y;
+	int	x;
+	int	y;
 
 	x = -1;
 	y = -1;
@@ -203,13 +219,13 @@ int	ft_check_map(t_cub *cub)
 		cub->player.plane_x = 0;
 		cub->player.plane_y = 0.66;
 	}
-	return (0);		
+	return (0);
 }
 
 int	ft_free_map(char **map)
 {
-	int i;
-	
+	int	i;
+
 	i = 0;
 	while (map[i] != NULL)
 		free(map[i++]);
@@ -219,7 +235,7 @@ int	ft_free_map(char **map)
 
 void	display_map(char **map)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (map[i] != NULL)
@@ -228,8 +244,8 @@ void	display_map(char **map)
 
 char	**store_map(int ac, char **av)
 {
-	int   fd;
-	
+	int	fd;
+
 	fd = 0;
 	if (ac != 2)
 	{
@@ -259,7 +275,7 @@ int	ft_skip_spaces(char *str, int i)
 
 int	check_spaces(char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i] != '\0')
@@ -286,7 +302,7 @@ int	free_textures(t_cub *cub)
 
 int	get_texture(t_cub *cub, char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i] == ' ')
@@ -320,7 +336,7 @@ int	get_texture(t_cub *cub, char *str)
 
 int	get_color(char *str, char **C, char **F)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (str[i] == ' ')
@@ -340,35 +356,36 @@ int	get_color(char *str, char **C, char **F)
 
 int	fill_txt(t_cub *cub)
 {
-	int i;
-	
+	int	i;
+
 	i = 0;
 	while (cub->map[i] != NULL)
 	{
 		if (get_texture(cub, cub->map[i]) != 0)
-			break;
+			break ;
 		i++;
 	}
-	if (cub->path_to_north == NULL || cub->path_to_south == NULL || cub->path_to_west == NULL
-			|| cub->path_to_east == NULL)
-			return (printf("Error\nProblem with some of the texture file\n"));
+	if (cub->path_to_north == NULL || cub->path_to_south == NULL
+		|| cub->path_to_west == NULL || cub->path_to_east == NULL)
+		return (printf("Error\nProblem with some of the texture file\n"));
 	return (0);
 }
 
-int		ft_is_digit(char c)
+int	ft_is_digit(char c)
 {
 	if (c >= '0' && c <= '9')
 		return (1);
 	return (0);
 }
+
 unsigned int	get_hex(char *color)
 {
-	unsigned int rgb;
-	unsigned int r;
-	unsigned int g;
-	unsigned int b;
+	unsigned int	rgb;
+	unsigned int	r;
+	unsigned int	g;
+	unsigned int	b;
+	int				i;
 
-	int i;
 	i = 0;
 	r = 0;
 	g = 0;
@@ -394,7 +411,6 @@ unsigned int	get_hex(char *color)
 		if (b != 0)
 			b *= 10;
 		b += color[i++] - '0';
-
 	}
 	rgb = 65536 * r + 256 * g + b;
 	return (rgb);
@@ -407,18 +423,19 @@ void	free_either(void *F, void *C)
 	if (C != NULL)
 		free(C);
 }
+
 int	fill_colors(t_cub *cub)
 {
-	int i;
-	char *F;
-	char *C;
+	int		i;
+	char	*F;
+	char	*C;
 
 	F = NULL;
 	C = NULL;
 	i = 0;
 	while (cub->map[i] != NULL)
 		if (get_color(cub->map[i++], &F, &C) != 0)
-			break;
+			break ;
 	if (F == NULL || C == NULL)
 	{
 		free_either(F, C);
@@ -448,7 +465,7 @@ int	fill_textures(t_cub *cub)
 
 int	main(int ac, char **av)
 {
-	t_cub cub;
+	t_cub	cub;
 
 	cub.map = store_map(ac, av);
 	if (cub.map == NULL)
